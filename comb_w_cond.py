@@ -119,8 +119,17 @@ for dice_type in dice_types.keys():
         # If the weight of the current combination is better than the best weight so far, update the pips distribution
         if weight <= weight_best:
             weight_best = weight
-            pips_distribution_best[dice_type] = {key: (None if letter_frequencies[key] >= 1 / dice_types[dice_type] else value) for key, value in pips_distribution.items()}
-            print(weight, ':', pips_distribution)
+            pips_distribution_best[dice_type] = {key: (None
+                                                       if letter_frequencies[key] >= 1 / dice_types[dice_type]
+                                                       else value)
+                                                 for key, value in pips_distribution.items()}
+            # Use a list comprehension to get a list of the values from the dictionary
+            values_list = [value for value in pips_distribution.values()]
+
+            # Use another list comprehension to count the occurrences of each value in the list
+            value_counts = {value: values_list.count(value) for value in set(values_list)}
+
+            print(weight, ':', [round(val, 5) for val in total_probability], ':', value_counts, ':', pips_distribution)
 
 # Print the best pips distribution for each dice type
 print(pips_distribution_best)
