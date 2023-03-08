@@ -58,7 +58,7 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
 
     # Generate all possible combinations by recursively adding values to the current combination
     for i in range(1, n+1):
-        _generate_strings(n, m-1, [i] + current, strings)
+        _generate_strings(n, m-1, current + [i], strings)
 
 
 def calculate_probability(f: dict, d: dict, n: int) -> list:
