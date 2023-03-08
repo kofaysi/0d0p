@@ -40,6 +40,8 @@ def generate_strings(n: int, m: int) -> list:
 def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
     """
     Helper function for generate_strings. Recursively generates all possible combinations of values.
+    Additionally, recursive branches which are doomed to be off in distribution are killed in time
+    to reduce computation effort.
 
     Args:
         n (int): The maximum value for each combination.
@@ -114,7 +116,10 @@ for dice_type in dice_types.keys():
         total_probability = calculate_probability(letter_frequencies, pips_distribution, dice_types[dice_type])
 
         # Calculate the weight of the current combination
-        weight = sum([(p - 1 / dice_types[dice_type]) ** 2 if letter_frequencies[list(letter_frequencies)[i]] <= 1 / dice_types[dice_type] else 0 for i, p in enumerate(total_probability)])
+        weight = sum([(p - 1 / dice_types[dice_type]) ** 2
+                      if letter_frequencies[list(letter_frequencies)[i]] <= 1 / dice_types[dice_type]
+                      else 0
+                      for i, p in enumerate(total_probability)])
 
         # If the weight of the current combination is better than the best weight so far, update the pips distribution
         if weight <= weight_best:
