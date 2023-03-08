@@ -16,8 +16,9 @@ freq_sorted = sorted(letter_frequencies.values())
 # calculate the smallest possible increment of the probability
 diff = min([abs(item1-item2) for item1, item2 in zip(freq_sorted[:-1], freq_sorted[1:])])
 
+dice_keys = ['D2', 'D4', 'D6', 'D8', 'D10']
 # A list of all uppercase letters in the English alphabet
-dice_types = {'D2': 2, 'D4': 4, 'D6': 6, 'D8': 8, 'D10': 10}
+dice_types = {key: int(key[1:]) for key in dice_keys}
 
 
 def generate_strings(n: int, m: int) -> list:
@@ -93,7 +94,7 @@ def calculate_probability(f: dict, d: dict, n: int) -> list:
 
 # A dictionary to store the best pips distribution for each dice type
 # The keys are the dice types and the values are dictionaries of letter-value pairs
-pips_distribution_best = {'D2': {}, 'D4': {}, 'D6': {}, 'D8': {}, 'D10': {}}
+pips_distribution_best = {key: {} for key in dice_keys}
 
 # A variable to store the best weight so far
 weight_best = 1
