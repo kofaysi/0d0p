@@ -11,6 +11,10 @@ letter_frequencies = {
 #     'A': 0.26, 'B': 0.14, 'C': 0.2, 'D': 0.11, 'E': 0.09, 'F': 0.15, 'G': 0.05
 # }
 
+# sort the values of the frequencies
+freq_sorted = sorted(letter_frequencies.values())
+# calculate the smallest possible increment of the probability
+diff = min([abs(item1-item2) for item1, item2 in zip(freq_sorted[:-1], freq_sorted[1:])])
 
 # A list of all uppercase letters in the English alphabet
 dice_types = {'D2': 2, 'D4': 4, 'D6': 6, 'D8': 8, 'D10': 10}
@@ -53,7 +57,7 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
     _total_probability = calculate_probability(letter_frequencies, _pips_distribution, dice_types[dice_type])
 
     # Check if the total probability of any letter is greater than the expected value for a fair dice
-    if any([p > 1/dice_types[dice_type]*(1+min(letter_frequencies.values())) for p in _total_probability]):
+    if any([p > 1/dice_types[dice_type] + diff/2 for p in _total_probability]):
         return
 
     # Generate all possible combinations by recursively adding values to the current combination
