@@ -85,14 +85,16 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
         # Calculate the probability distribution of each letter appearing on the dice
         _pips_probability = calculate_probability(_pips_distribution)
 
-        p_mean = sum([f if d is not None else 0 for f, d in zip(letter_frequencies.values(), _pips_distribution.values())]) / dice_types[dice_type]
+        p_mean = 1/dice_types[dice_type]
+        # sum([f if d is not None else 0 for f, d in zip(letter_frequencies.values(), _pips_distribution.values())])
+        # / dice_types[dice_type]
 
         # Check if the total probability of any letter is greater than the expected value for a fair dice
         if any([p > p_mean + min_diff/2
                 for p in _pips_probability.values()]):
             return
 
-    #if len(strings) >= 20:
+    # if len(strings) >= 20:
     #    return
 
     # Generate all possible combinations by recursively adding values to the current combination
@@ -100,7 +102,7 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
         _generate_strings(n, m-1, current + [i], strings)
 
 
-def calculate_probability(d: dict) -> list:
+def calculate_probability(d: dict) -> dict:
     """
     Calculate the probability of each value on the dice, given the frequency of each letter in the alphabet
     and the distribution of letters on the dice.
@@ -119,7 +121,7 @@ def calculate_probability(d: dict) -> list:
         for val, key in letter_distribution.items()
     }
 
-    p = list(letter_freq_sum.values())
+    # p = list(letter_freq_sum.values())
     return letter_freq_sum
 
 
@@ -132,7 +134,9 @@ def evaluate_combination(c):
     pips_probability = calculate_probability(pips_distribution)
 
     # average probability
-    p_mean = sum([f if d is not None else 0 for f, d in zip(letter_frequencies.values(), pips_distribution.values())]) / dice_types[dice_type]
+    p_mean = 1/dice_types[dice_type]
+    # sum([f if d is not None else 0 for f, d in zip(letter_frequencies.values(), pips_distribution.values())])
+    # / dice_types[dice_type]
 
     # Calculate the weight of the current combination
     weight = sum([(p - p_mean) ** 2 for p in pips_probability.values()])
@@ -148,11 +152,11 @@ def evaluate_combination(c):
         # Use another list comprehension to count the occurrences of each value in the list
         value_counts = {value: values_list.count(value) for value in set(values_list)}
 
-        print(weight, ':', [round(val, 5) for val in pips_probability], ':', value_counts, ':', pips_distribution)
+        print(weight, ':', {key: round(val, 5) for key, val in pips_probability.items()}, ':', value_counts, ':', pips_distribution)
 
 
 def distribute_pips(c):
-    pips_distribution = {key: value if letter_frequencies[key] < 1 / dice_types[dice_type] * 1.3 else None
+    pips_distribution = {key: value if letter_frequencies[key] < 1 / dice_types[dice_type] - min_diff else None
                          for key, value in zip(letter_frequencies.keys(), c)}
     return pips_distribution
 
