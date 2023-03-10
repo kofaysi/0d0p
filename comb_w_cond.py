@@ -112,8 +112,16 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
         evaluate_combination(strings[-1])
         return
 
+    # if len(current) >= (len(letter_frequencies) - min_pips_count - 1):
+    # \
+    #    or (len(_letter_distribution) == dice_types[dice_type]
+    #        and all([len(letters) >= min_pips_count for letters in _letter_distribution.values()])):
     # Create a dictionary of letter-value pairs for the current combination
     _pips_distribution = {key: value for key, value in zip(letter_frequencies.keys(), current)}
+
+    # Create a dictionary of pips-{set letters} pairs for the current combination
+    # _letter_distribution = {value: {key for key, val in _pips_distribution.items() if val == value}
+    #                        for value in _pips_distribution.values()}
     # Calculate the probability distribution of each letter appearing on the dice
     _total_probability = calculate_probability(_pips_distribution)
 
