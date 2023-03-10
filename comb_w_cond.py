@@ -1,37 +1,4 @@
-import random
-
-random.seed(10)
-
 # Frequency of letters in English language
-letter_similarities = {
-    'A': {2, 3, 4, 5, 6, 7, 8, 9, 10},  # a
-    'B': {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},  # b
-    'C': {2, 3, 4, 5, 6, 7, 8, 9, 10},  # c
-    'D': {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},  # d
-    'E': {2, 3, 4, 5, 6, 7, 8, 9, 10},  # e
-    'F': {1, 4, 5, 6, 7, 8, 9, 10},  # f
-    'G': {2, 3, 4, 5, 6, 7, 8, 9, 10},  # g
-    'H': {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},  # h
-    'I': {1, 4, 5, 6, 7, 8, 9, 10},  # i
-    'J': {1, 4, 5, 6, 7, 8, 9, 10},  # j
-    'K': {1, 3, 4, 5, 6, 7, 8, 9, 10},  # k
-    'L': {1, 4, 5, 6, 7, 8, 9, 10},  # l
-    'M': {2, 3, 4, 5, 6, 7, 8, 9, 10},  # m
-    'N': {2, 3, 4, 5, 6, 7, 8, 9, 10},  # n
-    'O': {2, 3, 4, 5, 6, 7, 8, 9, 10},  # o
-    'P': {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},  # p
-    'Q': {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},  # q
-    'R': {2, 3, 4, 5, 6, 7, 8, 9, 10},  # r
-    'S': {2, 3, 4, 5, 6, 7, 8, 9, 10},  # s
-    'T': {1, 3, 4, 5, 6, 7, 8, 9, 10},  # t
-    'U': {2, 3, 4, 5, 6, 7, 8, 9, 10},  # u
-    'V': {2, 3, 4, 5, 6, 7, 8, 9, 10},  # v
-    'W': {2, 3, 4, 5, 6, 7, 8, 9, 10},  # w
-    'X': {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},  # x
-    'Y': {2, 3, 4, 5, 6, 7, 8, 9, 10},  # y
-    'Z': {2, 3, 4, 5, 6, 7, 8, 9, 10}   # z
-}
-
 letter_frequencies = {
     'A': 0.08167,
     'B': 0.01492,
@@ -61,12 +28,9 @@ letter_frequencies = {
     'Z': 0.00074
 }
 
-# letter_frequencies = {
-#     'A': 0.26, 'B': 0.14, 'C': 0.2, 'D': 0.11, 'E': 0.09, 'F': 0.15, 'G': 0.05
-# }
-
 # sort the values of the frequencies
 freq_sorted = sorted(letter_frequencies.values())
+
 # calculate the smallest possible increment of the probability
 min_diff = min([abs(item2 - item1) for item1, item2 in zip(freq_sorted[:-1], freq_sorted[1:])])
 
@@ -74,6 +38,7 @@ min_diff = min([abs(item2 - item1) for item1, item2 in zip(freq_sorted[:-1], fre
 freq_sums = [sum(freq_sorted[-i-1:]) for i, freq in enumerate(freq_sorted)]
 
 dice_keys = ['D2', 'D4', 'D6', 'D8', 'D10']
+
 # A list of all uppercase letters in the English alphabet
 dice_types = {key: int(key[1:]) for key in dice_keys}
 
@@ -112,16 +77,9 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
         evaluate_combination(strings[-1])
         return
 
-    # if len(current) >= (len(letter_frequencies) - min_pips_count - 1):
-    # \
-    #    or (len(_letter_distribution) == dice_types[dice_type]
-    #        and all([len(letters) >= min_pips_count for letters in _letter_distribution.values()])):
     # Create a dictionary of letter-value pairs for the current combination
     _pips_distribution = {key: value for key, value in zip(letter_frequencies.keys(), current)}
 
-    # Create a dictionary of pips-{set letters} pairs for the current combination
-    # _letter_distribution = {value: {key for key, val in _pips_distribution.items() if val == value}
-    #                        for value in _pips_distribution.values()}
     # Calculate the probability distribution of each letter appearing on the dice
     _total_probability = calculate_probability(_pips_distribution)
 
@@ -159,7 +117,7 @@ def calculate_probability(d: dict) -> list:
         for val, key in letter_distribution.items()
     }
 
-    p = letter_freq_sum.values()
+    p = list(letter_freq_sum.values())
     return p
 
 
@@ -205,10 +163,3 @@ for dice_type in dice_types.keys():
 
     # Generate all possible combinations of values, break if required internally
     combinations = generate_strings(dice_types[dice_type], len(letter_frequencies.keys()))
-
-    # # Iterate over each valid combination
-    # for combination in combinations:
-    #     evaluate_combination(combination)
-
-# Print the best pips distribution for each dice type
-# print(pips_distribution_best)
