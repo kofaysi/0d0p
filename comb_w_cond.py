@@ -28,6 +28,11 @@ letter_frequencies = {
     'Z': 0.00074
 }
 
+
+class Comb():
+    pass
+
+
 # sort the values of the frequencies
 freq_sorted = sorted(letter_frequencies.values())
 
