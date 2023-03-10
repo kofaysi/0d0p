@@ -68,7 +68,10 @@ letter_frequencies = {
 # sort the values of the frequencies
 freq_sorted = sorted(letter_frequencies.values())
 # calculate the smallest possible increment of the probability
-diff = min([abs(item1-item2) for item1, item2 in zip(freq_sorted[:-1], freq_sorted[1:])])
+min_diff = min([abs(item2 - item1) for item1, item2 in zip(freq_sorted[:-1], freq_sorted[1:])])
+
+# estimate the minimal count of the pips required
+freq_sums = [sum(freq_sorted[-i-1:]) for i, freq in enumerate(freq_sorted)]
 
 dice_keys = ['D2', 'D4', 'D6', 'D8', 'D10']
 # A list of all uppercase letters in the English alphabet
@@ -115,7 +118,10 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
     _total_probability = calculate_probability(_pips_distribution)
 
     # Check if the total probability of any letter is greater than the expected value for a fair dice
-    if any([p > 1/dice_types[dice_type] + diff/2 for p in _total_probability]):
+    if any([p > 1 / dice_types[dice_type] + min_diff
+            if letter_frequencies[list(letter_frequencies)[i]] <= 1 / dice_types[dice_type]
+            else False
+            for i, p in enumerate(_total_probability)]):
         return
 
     if len(strings) >= 20:
@@ -186,6 +192,8 @@ for dice_type in dice_types.keys():
 
     # A variable to store the best weight so far
     weight_best = 1
+
+    min_pips_count = [freq_sum + min_diff <= 1/dice_types[dice_type] for freq_sum in freq_sums].count(True)+1
 
     # Generate all possible combinations of values, break if required internally
     combinations = generate_strings(dice_types[dice_type], len(letter_frequencies.keys()))
