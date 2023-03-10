@@ -102,6 +102,7 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
     # If the length of the current combination is m, append it to the list of strings
     if m == 0:
         strings.append(''.join(map(str, current)))
+        evaluate_combination(strings[-1])
         return
 
     # Create a dictionary of letter-value pairs for the current combination
@@ -111,6 +112,9 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
 
     # Check if the total probability of any letter is greater than the expected value for a fair dice
     if any([p > 1/dice_types[dice_type] + diff/2 for p in _total_probability]):
+        return
+
+    if len(strings) >= 20:
         return
 
     # Generate all possible combinations by recursively adding values to the current combination
