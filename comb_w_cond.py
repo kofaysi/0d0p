@@ -85,9 +85,11 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
         # Calculate the probability distribution of each letter appearing on the dice
         _pips_probability = calculate_probability(_pips_distribution)
 
+        p_mean = sum([f if d is not None else 0 for f, d in zip(letter_frequencies.values(), _pips_distribution.values())]) / dice_types[dice_type]
+
         # Check if the total probability of any letter is greater than the expected value for a fair dice
-        if any([p > 1 / dice_types[dice_type] + min_diff
-                for i, p in enumerate(_pips_probability)]):
+        if any([p > p_mean + min_diff/2
+                for p in _pips_probability.values()]):
             return
 
     #if len(strings) >= 20:
@@ -118,7 +120,7 @@ def calculate_probability(d: dict) -> list:
     }
 
     p = list(letter_freq_sum.values())
-    return p
+    return letter_freq_sum
 
 
 def evaluate_combination(c):
@@ -129,8 +131,11 @@ def evaluate_combination(c):
     # Calculate the probability distribution of each letter appearing on the dice
     pips_probability = calculate_probability(pips_distribution)
 
+    # average probability
+    p_mean = sum([f if d is not None else 0 for f, d in zip(letter_frequencies.values(), pips_distribution.values())]) / dice_types[dice_type]
+
     # Calculate the weight of the current combination
-    weight = sum([(p - 1 / dice_types[dice_type]) ** 2 for i, p in enumerate(pips_probability)])
+    weight = sum([(p - p_mean) ** 2 for p in pips_probability.values()])
 
     # If the weight of the current combination is better than the best weight so far, update the pips distribution
     if weight <= weight_best:
@@ -147,7 +152,7 @@ def evaluate_combination(c):
 
 
 def distribute_pips(c):
-    pips_distribution = {key: value if letter_frequencies[key] < 1 / dice_types[dice_type] - min_diff else None
+    pips_distribution = {key: value if letter_frequencies[key] < 1 / dice_types[dice_type] * 1.3 else None
                          for key, value in zip(letter_frequencies.keys(), c)}
     return pips_distribution
 
