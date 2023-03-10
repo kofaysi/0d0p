@@ -211,4 +211,4 @@ for dice_type in dice_types.keys():
     #     evaluate_combination(combination)
 
 # Print the best pips distribution for each dice type
-print(pips_distribution_best)
+# print(pips_distribution_best)
