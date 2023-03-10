@@ -108,7 +108,7 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
     # Create a dictionary of letter-value pairs for the current combination
     _pips_distribution = {key: value for key, value in zip(letter_frequencies.keys(), current)}
     # Calculate the probability distribution of each letter appearing on the dice
-    _total_probability = calculate_probability(letter_frequencies, _pips_distribution, dice_types[dice_type])
+    _total_probability = calculate_probability(_pips_distribution)
 
     # Check if the total probability of any letter is greater than the expected value for a fair dice
     if any([p > 1/dice_types[dice_type] + diff/2 for p in _total_probability]):
@@ -122,15 +122,13 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
         _generate_strings(n, m-1, current + [i], strings)
 
 
-def calculate_probability(f: dict, d: dict, n: int) -> list:
+def calculate_probability(d: dict) -> list:
     """
     Calculate the probability of each value on the dice, given the frequency of each letter in the alphabet
     and the distribution of letters on the dice.
 
     Args:
-        f (dict): A dictionary of letter-frequency pairs.
         d (dict): A dictionary of letter-value pairs representing the distribution of letters on the dice.
-        n (int): The number of sides on the dice.
 
     Returns:
         list: A list of the probability of each value on the dice.
