@@ -33,11 +33,12 @@ freq_sorted = sorted(letter_frequencies.values())
 
 # calculate the smallest possible increment of the probability
 min_diff = min([abs(item2 - item1) for item1, item2 in zip(freq_sorted[:-1], freq_sorted[1:])])
+# min_freq = min(freq_sorted)
 
 # estimate the minimal count of the pips required
 freq_sums = [sum(freq_sorted[-i-1:]) for i, freq in enumerate(freq_sorted)]
 
-dice_keys = ['D6']  # 'D2', 'D4', 'D6','D8', 'D10'
+dice_keys = ['D10']  # 'D2', 'D4', 'D6','D8', 'D10'
 
 # A list of all uppercase letters in the English alphabet
 dice_types = {key: int(key[1:]) for key in dice_keys}
@@ -73,21 +74,21 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
     """
     # If the length of the current combination is m, append it to the list of strings
     if m == 0:
-        strings.append(''.join(map(str, current)))
+        strings.append(current)
         evaluate_combination(strings[-1])
         return
 
     # Create a dictionary of letter-value pairs for the current combination
-    _pips_distribution = {key: value if letter_frequencies[key] <= 1 / dice_types[dice_type] else 0
-                          for key, value in zip(letter_frequencies.keys(), current)}
+    if current:
+        _pips_distribution = distribute_pips(current)
 
-    # Calculate the probability distribution of each letter appearing on the dice
-    _total_probability = calculate_probability(_pips_distribution)
+        # Calculate the probability distribution of each letter appearing on the dice
+        _pips_probability = calculate_probability(_pips_distribution)
 
-    # Check if the total probability of any letter is greater than the expected value for a fair dice
-    if any([p > 1 / dice_types[dice_type] + min_diff
-            for i, p in enumerate(_total_probability)]):
-        return
+        # Check if the total probability of any letter is greater than the expected value for a fair dice
+        if any([p > 1 / dice_types[dice_type] + min_diff
+                for i, p in enumerate(_pips_probability)]):
+            return
 
     #if len(strings) >= 20:
     #    return
@@ -112,7 +113,7 @@ def calculate_probability(d: dict) -> list:
     letter_distribution = {value: {key for key, val in d.items() if val == value} for value in d.values()}
 
     letter_freq_sum = {
-        val: sum(letter_frequencies[char] for char in key)
+        val: sum(letter_frequencies[char] if val is not None else 0 for char in key)
         for val, key in letter_distribution.items()
     }
 
@@ -123,22 +124,18 @@ def calculate_probability(d: dict) -> list:
 def evaluate_combination(c):
     global weight_best
     # Create a dictionary of letter-value pairs for the current combination
-    pips_distribution = {key: value if letter_frequencies[key] <= 1 / dice_types[dice_type] else 0
-                         for key, value in zip(letter_frequencies.keys(), c)}
+    pips_distribution = distribute_pips(c)
 
     # Calculate the probability distribution of each letter appearing on the dice
-    total_probability = calculate_probability(pips_distribution)
+    pips_probability = calculate_probability(pips_distribution)
 
     # Calculate the weight of the current combination
-    weight = sum([(p - 1 / dice_types[dice_type]) ** 2 for i, p in enumerate(total_probability)])
+    weight = sum([(p - 1 / dice_types[dice_type]) ** 2 for i, p in enumerate(pips_probability)])
 
     # If the weight of the current combination is better than the best weight so far, update the pips distribution
     if weight <= weight_best:
         weight_best = weight
-        pips_distribution_best[dice_type] = {key: (None
-                                                   if letter_frequencies[key] >= 1 / dice_types[dice_type]
-                                                   else value)
-                                             for key, value in pips_distribution.items()}
+        pips_distribution_best[dice_type] = pips_distribution
 
         # Use a list comprehension to get a list of the values from the dictionary
         values_list = [value for value in pips_distribution.values()]
@@ -146,7 +143,13 @@ def evaluate_combination(c):
         # Use another list comprehension to count the occurrences of each value in the list
         value_counts = {value: values_list.count(value) for value in set(values_list)}
 
-        print(weight, ':', [round(val, 5) for val in total_probability], ':', value_counts, ':', pips_distribution)
+        print(weight, ':', [round(val, 5) for val in pips_probability], ':', value_counts, ':', pips_distribution)
+
+
+def distribute_pips(c):
+    pips_distribution = {key: value if letter_frequencies[key] < 1 / dice_types[dice_type] - min_diff else None
+                         for key, value in zip(letter_frequencies.keys(), c)}
+    return pips_distribution
 
 
 # A dictionary to store the best pips distribution for each dice type
