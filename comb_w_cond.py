@@ -78,15 +78,14 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
         return
 
     # Create a dictionary of letter-value pairs for the current combination
-    _pips_distribution = {key: value for key, value in zip(letter_frequencies.keys(), current)}
+    _pips_distribution = {key: value if letter_frequencies[key] <= 1 / dice_types[dice_type] else 0
+                          for key, value in zip(letter_frequencies.keys(), current)}
 
     # Calculate the probability distribution of each letter appearing on the dice
     _total_probability = calculate_probability(_pips_distribution)
 
     # Check if the total probability of any letter is greater than the expected value for a fair dice
     if any([p > 1 / dice_types[dice_type] + min_diff
-            if letter_frequencies[list(letter_frequencies)[i]] <= 1 / dice_types[dice_type]
-            else False
             for i, p in enumerate(_total_probability)]):
         return
 
@@ -124,14 +123,15 @@ def calculate_probability(d: dict) -> list:
 def evaluate_combination(c):
     global weight_best
     # Create a dictionary of letter-value pairs for the current combination
-    pips_distribution = {key: value for key, value in zip(letter_frequencies.keys(), c)}
+    pips_distribution = {key: value if letter_frequencies[key] <= 1 / dice_types[dice_type] else 0
+                         for key, value in zip(letter_frequencies.keys(), c)}
+
     # Calculate the probability distribution of each letter appearing on the dice
     total_probability = calculate_probability(pips_distribution)
+
     # Calculate the weight of the current combination
-    weight = sum([(p - 1 / dice_types[dice_type]) ** 2
-                  if letter_frequencies[list(letter_frequencies)[i]] <= 1 / dice_types[dice_type]
-                  else 0
-                  for i, p in enumerate(total_probability)])
+    weight = sum([(p - 1 / dice_types[dice_type]) ** 2 for i, p in enumerate(total_probability)])
+
     # If the weight of the current combination is better than the best weight so far, update the pips distribution
     if weight <= weight_best:
         weight_best = weight
@@ -139,6 +139,7 @@ def evaluate_combination(c):
                                                    if letter_frequencies[key] >= 1 / dice_types[dice_type]
                                                    else value)
                                              for key, value in pips_distribution.items()}
+
         # Use a list comprehension to get a list of the values from the dictionary
         values_list = [value for value in pips_distribution.values()]
 
