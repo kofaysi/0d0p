@@ -89,6 +89,7 @@ def generate_strings(n: int, m: int) -> list:
     Returns:
         list: A list of strings representing all possible combinations.
     """
+    global min_pips_count
     strings = []
     _generate_strings(n, m, [], strings)
     return strings
@@ -106,31 +107,45 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
         current (list): The current combination being generated.
         strings (list): The list of all possible combinations.
     """
+    global min_pips_count
     # If the length of the current combination is m, append it to the list of strings
     if m == 0:
         strings.append(''.join(map(str, current)))
         evaluate_combination(strings[-1])
         return
 
-    # if len(current) >= (len(letter_frequencies) - min_pips_count - 1):
-    # \
-    #    or (len(_letter_distribution) == dice_types[dice_type]
-    #        and all([len(letters) >= min_pips_count for letters in _letter_distribution.values()])):
-    # Create a dictionary of letter-value pairs for the current combination
-    _pips_distribution = {key: value for key, value in zip(letter_frequencies.keys(), current)}
+    _pips_counts = [current.count(value) for value in set(current)]
 
-    # Create a dictionary of pips-{set letters} pairs for the current combination
-    # _letter_distribution = {value: {key for key, val in _pips_distribution.items() if val == value}
-    #                        for value in _pips_distribution.values()}
-    # Calculate the probability distribution of each letter appearing on the dice
-    _total_probability = calculate_probability(_pips_distribution)
+    # the count of any pip number is so large that other pips cannot fit into the distribution
+    some_pip_count_too_many = any([pip_count >= len(letter_frequencies) - (dice_types[dice_type] - 1) * min_pips_count
+                                   for pip_count in _pips_counts])
 
-    # Check if the total probability of any letter is greater than the expected value for a fair dice
-    if any([p > 1 / dice_types[dice_type] + min_diff
-            if letter_frequencies[list(letter_frequencies)[i]] <= 1 / dice_types[dice_type]
-            else False
-            for i, p in enumerate(_total_probability)]):
+    if some_pip_count_too_many:
         return
+
+    # all pip numbers exceeded the minimal value for pip count
+    all_pip_counts_exceed_min = all([pip_count >= min_pips_count for pip_count in _pips_counts])
+
+    # all pips are present in the current combination
+    all_pips_present = len(_pips_counts) == dice_types[dice_type]
+
+    # if len(current) >= (len(letter_frequencies) - min_pips_count - 1):
+    # if (len(_pips_counts) == dice_types[dice_type]
+    if (len(current) >= len(letter_frequencies) - 1
+            or (all_pips_present
+                and all_pip_counts_exceed_min)):
+        # Create a dictionary of letter-value pairs for the current combination
+        _pips_distribution = {key: value for key, value in zip(letter_frequencies.keys(), current)}
+
+        # Calculate the probability distribution of each letter appearing on the dice
+        _total_probability = calculate_probability(_pips_distribution)
+
+        # Check if the total probability of any letter is greater than the expected value for a fair dice
+        if any([p > 1 / dice_types[dice_type] + min_diff
+                if letter_frequencies[list(letter_frequencies)[i]] <= 1 / dice_types[dice_type]
+                else False
+                for i, p in enumerate(_total_probability)]):
+            return
 
     if len(strings) >= 20:
         return
