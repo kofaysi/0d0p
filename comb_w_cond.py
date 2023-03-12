@@ -85,9 +85,7 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
         # Calculate the probability distribution of each letter appearing on the dice
         _pips_probability = calculate_probability(_pips_distribution)
 
-        p_mean = 1/dice_types[dice_type]
-        # sum([f if d is not None else 0 for f, d in zip(letter_frequencies.values(), _pips_distribution.values())])
-        # / dice_types[dice_type]
+        p_mean = 1 / dice_types[dice_type]
 
         # Check if the total probability of any letter is greater than the expected value for a fair dice
         if any([p > p_mean + min_diff/2
@@ -134,9 +132,7 @@ def evaluate_combination(c):
     pips_probability = calculate_probability(pips_distribution)
 
     # average probability
-    p_mean = 1/dice_types[dice_type]
-    # sum([f if d is not None else 0 for f, d in zip(letter_frequencies.values(), pips_distribution.values())])
-    # / dice_types[dice_type]
+    p_mean = 1 / dice_types[dice_type]
 
     # Calculate the weight of the current combination
     weight = sum([(p - p_mean) ** 2 for p in pips_probability.values()])
@@ -171,6 +167,13 @@ for dice_type in dice_types.keys():
 
     # A variable to store the best weight so far
     weight_best = 1
+
+    p_mean = 1/dice_types[dice_type]
+
+    while any([f is not None and f > 1.1 * p_mean for f in letter_frequencies.values()]):
+        sum_letter_freq = sum([f if f is not None and f <= p_mean else 0 for f in letter_frequencies.values()])
+        letter_frequencies.update((l, 1/sum_letter_freq*f if f is not None and f <= p_mean else None)
+                                  for l, f in letter_frequencies.items())
 
     min_pips_count = [freq_sum + min_diff <= 1/dice_types[dice_type] for freq_sum in freq_sums].count(True)+1
 
