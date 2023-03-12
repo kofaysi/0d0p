@@ -38,10 +38,13 @@ min_diff = min([abs(item2 - item1) for item1, item2 in zip(freq_sorted[:-1], fre
 # estimate the minimal count of the pips required
 freq_sums = [sum(freq_sorted[-i-1:]) for i, freq in enumerate(freq_sorted)]
 
-dice_keys = ['D10']  # 'D2', 'D4', 'D6','D8', 'D10'
+dice_keys = ['D2', 'D4', 'D6','D8', 'D10']
 
 # A list of all uppercase letters in the English alphabet
 dice_types = {key: int(key[1:]) for key in dice_keys}
+
+# margin of acceptance to the p_mean
+p_mean_margin = 0.1
 
 
 def generate_strings(n: int, m: int) -> list:
@@ -86,12 +89,12 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
         _pips_probability = calculate_probability(_pips_distribution)
 
         # Check if the total probability of any letter is greater than the expected value for a fair dice
-        if any([p > p_mean + min_diff/2
-                for p in _pips_probability.values()]):
+        if any([p > (1 + p_mean_margin) * p_mean
+                for key, p in _pips_probability.items()]):
             return
 
-    # if len(strings) >= 20:
-    #    return
+    if len(strings) >= 10000:
+        return
 
     # Generate all possible combinations by recursively adding values to the current combination
     for i in range(1, n+1):
@@ -149,7 +152,7 @@ def evaluate_combination(c):
 
 def distribute_pips(c):
     pips_distribution = {key: value if letter_frequencies[key] is not None
-                                       and letter_frequencies[key] < 1 / dice_types[dice_type] - min_diff else None
+                                       and letter_frequencies[key] < (1 + p_mean_margin) * p_mean else None
                          for key, value in zip(letter_frequencies.keys(), c)}
     return pips_distribution
 
@@ -165,14 +168,15 @@ for dice_type in dice_types.keys():
     # A variable to store the best weight so far
     weight_best = 1
 
+    # the average frequency or probability
     p_mean = 1/dice_types[dice_type]
 
-    while any([f is not None and f > 1.1 * p_mean for f in letter_frequencies.values()]):
+    while any([f is not None and f > (1 + p_mean_margin) * p_mean for f in letter_frequencies.values()]):
         sum_letter_freq = sum([f if f is not None and f <= p_mean else 0 for f in letter_frequencies.values()])
         letter_frequencies.update((key, 1/sum_letter_freq*f if f is not None and f <= p_mean else None)
                                   for key, f in letter_frequencies.items())
 
-    min_pips_count = [freq_sum + min_diff <= 1/dice_types[dice_type] for freq_sum in freq_sums].count(True)+1
+    min_pips_count = [freq_sum <= (1 + p_mean_margin) * p_mean for freq_sum in freq_sums].count(True)+1
 
     # Generate all possible combinations of values, break if required internally
     combinations = generate_strings(dice_types[dice_type], len(letter_frequencies.keys()))
