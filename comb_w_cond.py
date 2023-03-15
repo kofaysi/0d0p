@@ -171,10 +171,10 @@ for dice_type in dice_types.keys():
     # the average frequency or probability
     p_mean = 1/dice_types[dice_type]
 
-    while any([f is not None and f > (1 + p_mean_margin) * p_mean for f in letter_frequencies.values()]):
-        sum_letter_freq = sum([f if f is not None and f <= p_mean else 0 for f in letter_frequencies.values()])
-        letter_frequencies.update((key, 1/sum_letter_freq*f if f is not None and f <= p_mean else None)
-                                  for key, f in letter_frequencies.items())
+    # while any([f is not None and f > (1 + p_mean_margin) * p_mean for f in letter_frequencies.values()]):
+    #    sum_letter_freq = sum([f if f is not None and f <= p_mean else 0 for f in letter_frequencies.values()])
+    #    letter_frequencies.update((key, 1/sum_letter_freq*f if f is not None and f <= p_mean else None)
+    #                              for key, f in letter_frequencies.items())
 
     min_pips_count = [freq_sum <= (1 + p_mean_margin) * p_mean for freq_sum in freq_sums].count(True)+1
 
