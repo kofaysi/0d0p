@@ -38,13 +38,13 @@ min_diff = min([abs(item2 - item1) for item1, item2 in zip(freq_sorted[:-1], fre
 # estimate the minimal count of the pips required
 freq_sums = [sum(freq_sorted[-i-1:]) for i, freq in enumerate(freq_sorted)]
 
-dice_keys = ['D2']  # 'D2', 'D4', 'D6', 'D8',
+dice_keys = ['D10']  # 'D2', 'D4', 'D6', 'D8',
 
 # A list of all uppercase letters in the English alphabet
 dice_types = {key: int(key[1:]) for key in dice_keys}
 
 # margin of acceptance to the p_mean
-p_mean_margin = 0
+p_mean_margin = 0.1
 
 
 def generate_strings(n: int, m: int) -> list:
