@@ -135,7 +135,7 @@ def evaluate_combination(c):
     pips_probability = calculate_probability(pips_distribution)
 
     # Calculate the weight of the current combination
-    weight = sum([(p - p_mean) ** 2 for p in pips_probability.values()])
+    weight = sum([(p - p_mean) ** 2 if k is not None else 0 for k, p in pips_probability.items()])
 
     # If the weight of the current combination is better than the best weight so far, update the pips distribution
     if weight <= weight_best:
