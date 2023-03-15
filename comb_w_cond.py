@@ -147,9 +147,10 @@ def evaluate_combination(c):
 
         # Use another list comprehension to count the occurrences of each value in the list
         value_counts = {value: values_list.count(value) for value in set(values_list)}
+        pips_probability_4p = {key: round(val, 5) for key, val in pips_probability.items()}
 
         print(weight, ':',
-              {key: round(val, 5) for key, val in pips_probability.items()}, ':',
+              pips_probability_4p, ':',
               value_counts, ':',
               pips_distribution)
 
