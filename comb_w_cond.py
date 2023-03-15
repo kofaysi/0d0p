@@ -38,13 +38,13 @@ min_diff = min([abs(item2 - item1) for item1, item2 in zip(freq_sorted[:-1], fre
 # estimate the minimal count of the pips required
 freq_sums = [sum(freq_sorted[-i-1:]) for i, freq in enumerate(freq_sorted)]
 
-dice_keys = ['D2', 'D4', 'D6','D8', 'D10']
+dice_keys = ['D2']  # 'D2', 'D4', 'D6', 'D8',
 
 # A list of all uppercase letters in the English alphabet
 dice_types = {key: int(key[1:]) for key in dice_keys}
 
 # margin of acceptance to the p_mean
-p_mean_margin = 0.1
+p_mean_margin = 0
 
 
 def generate_strings(n: int, m: int) -> list:
@@ -59,11 +59,11 @@ def generate_strings(n: int, m: int) -> list:
         list: A list of strings representing all possible combinations.
     """
     strings = []
-    _generate_strings(n, m, [], strings)
+    _generate_strings(n, m, [], strings, {})
     return strings
 
 
-def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
+def _generate_strings(n: int, m: int, current: list, strings: list, current_probability: dict) -> None:
     """
     Helper function for generate_strings. Recursively generates all possible combinations of values.
     Additionally, recursive branches which are doomed to be off in distribution are killed in time
@@ -83,22 +83,26 @@ def _generate_strings(n: int, m: int, current: list, strings: list) -> None:
 
     # Create a dictionary of letter-value pairs for the current combination
     if current:
-        _pips_distribution = distribute_pips(current)
+        _new_dice = current[-1]
+        _new_position = len(current) - 1
+        _new_letter = list(letter_frequencies.keys())[_new_position]
+        _new_freq = letter_frequencies[_new_letter] if letter_frequencies[_new_letter] is not None else 0
+        if _new_freq is None:
+            pass
 
-        # Calculate the probability distribution of each letter appearing on the dice
-        _pips_probability = calculate_probability(_pips_distribution)
+        current_probability[_new_dice] = current_probability.get(_new_dice, 0) + _new_freq
 
-        # Check if the total probability of any letter is greater than the expected value for a fair dice
-        if any([p > (1 + p_mean_margin) * p_mean
-                for key, p in _pips_probability.items()]):
+        # Check if the total probability of the new letter after new addition is greater than
+        # the expected value for a fair dice
+        if current_probability[_new_dice] > (1 + p_mean_margin) * p_mean:
             return
 
-    if len(strings) >= 10000:
-        return
+    # if len(strings) >= 10000:
+    #    return
 
     # Generate all possible combinations by recursively adding values to the current combination
     for i in range(1, n+1):
-        _generate_strings(n, m-1, current + [i], strings)
+        _generate_strings(n, m-1, current + [i], strings, dict(current_probability))
 
 
 def calculate_probability(d: dict) -> dict:
@@ -171,10 +175,10 @@ for dice_type in dice_types.keys():
     # the average frequency or probability
     p_mean = 1/dice_types[dice_type]
 
-    # while any([f is not None and f > (1 + p_mean_margin) * p_mean for f in letter_frequencies.values()]):
-    #    sum_letter_freq = sum([f if f is not None and f <= p_mean else 0 for f in letter_frequencies.values()])
-    #    letter_frequencies.update((key, 1/sum_letter_freq*f if f is not None and f <= p_mean else None)
-    #                              for key, f in letter_frequencies.items())
+    while any([f is not None and f > (1 + p_mean_margin) * p_mean for f in letter_frequencies.values()]):
+        sum_letter_freq = sum([f if f is not None and f <= p_mean else 0 for f in letter_frequencies.values()])
+        letter_frequencies.update((key, 1/sum_letter_freq*f if f is not None and f <= p_mean else None)
+                                  for key, f in letter_frequencies.items())
 
     min_pips_count = [freq_sum <= (1 + p_mean_margin) * p_mean for freq_sum in freq_sums].count(True)+1
 
