@@ -1,3 +1,4 @@
+# Frequency of letters in English language
 letter_frequencies = {
     'A': 0.08167,
     'B': 0.01492,

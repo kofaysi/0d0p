@@ -1,6 +1,5 @@
-# Frequency of letters in English language
-from wiki_EN_freq import letter_frequencies
-# from pi.math.cornell.edu_EN_freq import letter_frequencies
+# from wiki_EN_freq import letter_frequencies
+from cornell_EN_freq import letter_frequencies
 
 
 # sort the values of the frequencies
@@ -19,7 +18,7 @@ dice_keys = ['D2', 'D4', 'D6', 'D8', 'D10']
 dice_types = {key: int(key[1:]) for key in dice_keys}
 
 # margin of acceptance to the p_mean
-p_mean_margin = 0.0
+p_mean_margin = 0.04
 
 
 def generate_strings(n: int, m: int) -> list:
@@ -73,7 +72,7 @@ def _generate_strings(n: int, m: int, current: list, strings: list, current_prob
                 or current_probability[_new_dice] > (1 + p_mean_margin) * p_mean + min_diff/2:
             return
 
-    if len(strings) >= 1000:
+    if len(strings) >= 10000:
         return
 
     # Generate all possible combinations by recursively adding values to the current combination
